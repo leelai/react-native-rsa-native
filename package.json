@@ -1,6 +1,6 @@
 {
-  "name": "react-native-rsa-native",
-  "version": "1.1.4",
+  "name": "react-native-rsa-native-plus",
+  "version": "0.0.1",
   "description": "A native implementation of RSA key generation and encryption/decryption.",
   "main": "index.js",
   "types": "index.d.ts",
@@ -13,14 +13,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/amitaymolko/react-native-rsa-native.git"
+    "url": "https://github.com/leelai/react-native-rsa-native.git"
   },
   "bugs": {
-    "url": "https://github.com/amitaymolko/react-native-rsa-native/issues"
+    "url": "https://github.com/leelai/react-native-rsa-native/issues"
   },
   "author": {
-    "name": "Amitay Molko"
+    "name": "leelai"
   },
   "license": "MIT",
-  "homepage": "https://github.com/amitaymolko/react-native-rsa-native#readme"
+  "homepage": "https://github.com/leelai/react-native-rsa-native#readme"
 }
