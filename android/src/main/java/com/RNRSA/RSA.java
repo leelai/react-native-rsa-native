@@ -32,6 +32,7 @@ import java.security.cert.CertificateException;
 import java.security.spec.X509EncodedKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -99,14 +100,26 @@ public class RSA {
         return dataToPem(PUBLIC_HEADER, pkcs1PublicKey);
     }
 
+    public String getPublicKeyEncoded() {
+        return Base64.encodeToString(publicKey.getEncoded(), Base64.DEFAULT);
+    }
+
     public String getPrivateKey() throws IOException {
         byte[] pkcs1PrivateKey = privateKeyToPkcs1(this.privateKey);
 
         return dataToPem(PRIVATE_HEADER, pkcs1PrivateKey);
     }
 
+    public String getPrivateKeyEncoded() {
+        return Base64.encodeToString(privateKey.getEncoded(), Base64.DEFAULT);
+    }
+
     public void setPublicKey(String publicKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         this.publicKey = pkcs1ToPublicKey(publicKey);
+    }
+
+    public void setPublicKey2(String publicKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        this.publicKey = generatePublicKey(publicKey);
     }
 
     public void setPrivateKey(String privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -114,11 +127,38 @@ public class RSA {
         this.privateKey = pkcs1ToPrivateKey(pkcs1PrivateKey);
     }
 
+    public void setPrivateKey2(String privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        this.privateKey = generatePrivateKey(privateKey);
+    }
+
+    private static PublicKey generatePublicKey(String publicKeyString) {
+        try {
+            X509EncodedKeySpec data = new X509EncodedKeySpec(Base64.decode(publicKeyString.getBytes(), Base64.DEFAULT));
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(data);
+            return publicKey;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static PrivateKey generatePrivateKey(String privateKeyString) {
+        try {
+            PKCS8EncodedKeySpec data = new PKCS8EncodedKeySpec(Base64.decode(privateKeyString.getBytes(), Base64.DEFAULT));
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = keyFactory.generatePrivate(data);
+            return privateKey;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     // This function will be called by encrypt and encrypt64
     private byte[] encrypt(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException {
         String encodedMessage = null;
-        final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
+        final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, this.publicKey);
         byte[] cipherBytes = cipher.doFinal(data);
         return cipherBytes;
@@ -140,7 +180,7 @@ public class RSA {
 
     private byte[] decrypt(byte[] cipherBytes) throws NoSuchAlgorithmException, InvalidKeySpecException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, InvalidKeyException {
         String message = null;
-        final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
+        final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
         byte[] data = cipher.doFinal(cipherBytes);
         return data;

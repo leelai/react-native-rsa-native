@@ -16,6 +16,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.util.Log;
+
 public class RNRSAModule extends ReactContextBaseJavaModule {
 
   private static final String SHA256withRSA = "SHA256withRSA";
@@ -43,7 +45,7 @@ public class RNRSAModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void generate(final Promise promise) {
-    this.generateKeys(2048, promise);
+    this.generateKeys(1024, promise);
   }
 
   @ReactMethod
@@ -58,6 +60,28 @@ public class RNRSAModule extends ReactContextBaseJavaModule {
           rsa.generate(keySize);
           keys.putString("public", rsa.getPublicKey());
           keys.putString("private", rsa.getPrivateKey());
+          promise.resolve(keys);
+        } catch (NoSuchAlgorithmException e) {
+          promise.reject("Error", e.getMessage());
+        } catch (Exception e) {
+          promise.reject("Error", e.getMessage());
+        }
+      }
+    });
+  }
+
+  @ReactMethod
+  public void generateKeysEncoded(final int keySize, final Promise promise) {
+    AsyncTask.execute(new Runnable() {
+      @Override
+      public void run() {
+        WritableNativeMap keys = new WritableNativeMap();
+
+        try {
+          RSA rsa = new RSA();
+          rsa.generate(keySize);
+          keys.putString("public", rsa.getPublicKeyEncoded());
+          keys.putString("private", rsa.getPrivateKeyEncoded());
           promise.resolve(keys);
         } catch (NoSuchAlgorithmException e) {
           promise.reject("Error", e.getMessage());
@@ -102,6 +126,42 @@ public class RNRSAModule extends ReactContextBaseJavaModule {
     });
   }
 
+  // @ReactMethod
+  // public void decrypt(final String encodedMessage, final String privateKeyString, final Promise promise) {
+  //   AsyncTask.execute(new Runnable() {
+  //     @Override
+  //     public void run() {
+  //       try {
+  //         RSA rsa = new RSA();
+  //         rsa.setPrivateKey(privateKeyString);
+  //         String message = rsa.decrypt(encodedMessage);
+  //         promise.resolve(message);
+
+  //       } catch (Exception e) {
+  //         promise.reject("Error", e.getMessage());
+  //       }
+  //     }
+  //   });
+  // }
+
+  // @ReactMethod
+  // public void decrypt64(final String encodedMessage, final String privateKeyString, final Promise promise) {
+  //   AsyncTask.execute(new Runnable() {
+  //     @Override
+  //     public void run() {
+  //       try {
+  //         RSA rsa = new RSA();
+  //         rsa.setPrivateKey(privateKeyString);
+  //         String message = rsa.decrypt64(encodedMessage);
+  //         promise.resolve(message);
+
+  //       } catch (Exception e) {
+  //         promise.reject("Error", e.getMessage());
+  //       }
+  //     }
+  //   });
+  // }
+
   @ReactMethod
   public void decrypt(final String encodedMessage, final String privateKeyString, final Promise promise) {
     AsyncTask.execute(new Runnable() {
@@ -109,7 +169,7 @@ public class RNRSAModule extends ReactContextBaseJavaModule {
       public void run() {
         try {
           RSA rsa = new RSA();
-          rsa.setPrivateKey(privateKeyString);
+          rsa.setPrivateKey2(privateKeyString);
           String message = rsa.decrypt(encodedMessage);
           promise.resolve(message);
 
@@ -127,7 +187,7 @@ public class RNRSAModule extends ReactContextBaseJavaModule {
       public void run() {
         try {
           RSA rsa = new RSA();
-          rsa.setPrivateKey(privateKeyString);
+          rsa.setPrivateKey2(privateKeyString);
           String message = rsa.decrypt64(encodedMessage);
           promise.resolve(message);
 
